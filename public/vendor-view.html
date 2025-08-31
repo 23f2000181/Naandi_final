@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vendor - Naandi</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+<body>
+  <header class="topnav">
+    <div class="logo" id="title">Vendor</div>
+    <nav class="mainnav">
+      <a href="/index.html">Home</a>
+      <a href="/index.html#services">Services</a>
+      <a href="/services.html">Vendor</a>
+      <a href="/vendor-register.html">Vendor Register</a>
+      <a href="/index.html#about">About Us</a>
+    </nav>
+    <nav class="rightnav">
+      <a href="/signin.html">Sign In</a>
+      <a class="pill" href="/register.html">Register</a>
+    </nav>
+  </header>
+  <main class="container" style="display:grid;gap:14px">
+    <section class="card">
+      <h3 id="shopName" style="margin:0 0 6px 0">Vendor</h3>
+      <div id="ownerLine" class="muted"></div>
+      <div id="desc" class="muted" style="margin:12px 0"></div>
+      <button id="bookBtn" class="btn">Book</button>
+    </section>
+    <section class="card">
+      <h3 style="margin-top:0">Services & Portfolio</h3>
+      <div class="cards" id="serviceCards"></div>
+    </section>
+    <section class="card">
+      <h3 style="margin-top:0">Media</h3>
+      <div id="images" class="gallery"></div>
+    </section>
+    <section class="card">
+      <h3 style="margin-top:0">Location</h3>
+      <div id="map" class="map-box-small"></div>
+      <div style="margin-top:10px" class="muted" id="address"></div>
+    </section>
+  </main>
+  <div id="lightbox" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.8);z-index:9999">
+    <img id="lightImg" src="" style="max-width:90vw;max-height:90vh;border-radius:8px;border:1px solid #333" />
+  </div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+    const isAdmin = params.get('admin') === '1' || params.get('admin') === 'true';
+    async function load(){
+      const url = isAdmin ? `/api/admin/vendor/${id}` : `/api/vendors/${id}`;
+      const res = await fetch(url);
+      const v = await res.json();
+      if(v.error){ return; }
+      document.getElementById('title').textContent = v.shopName || v.name;
+      document.getElementById('shopName').textContent = v.shopName || v.name;
+      document.getElementById('ownerLine').textContent = `${v.name || ''} · ${v.email || ''} · ${v.mobile || ''}`;
+      document.getElementById('desc').textContent = v.description || '';
+      const serviceWrap = document.getElementById('serviceCards');
+      serviceWrap.innerHTML = '';
+      if(v.services){
+        const c = document.createElement('div'); c.className='card'; c.innerHTML = `<div class="card-title">Services Offered</div><small class="muted">${(v.services||'').replace(/\n/g,'<br>')}</small>`; serviceWrap.appendChild(c);
+      }
+      if(v.portfolio){
+        const c = document.createElement('div'); c.className='card'; c.innerHTML = `<div class="card-title">Work Portfolio</div><small class="muted">${(v.portfolio||'').replace(/\n/g,'<br>')}</small>`; serviceWrap.appendChild(c);
+      }
+      if(v.pricing){
+        const c = document.createElement('div'); c.className='card'; c.innerHTML = `<div class="card-title">Pricing Range</div><small class="muted">${(v.pricing||'').replace(/\n/g,'<br>')}</small>`; serviceWrap.appendChild(c);
+      }
+      document.getElementById('address').textContent = v.address || '';
+      const wrap = document.getElementById('images');
+      wrap.innerHTML = '';
+      (v.images||[]).forEach(src => {
+        const img = document.createElement('img'); img.src = src; img.style.cursor = 'zoom-in';
+        img.addEventListener('click', ()=>{ document.getElementById('lightImg').src = src; document.getElementById('lightbox').style.display='flex'; });
+        wrap.appendChild(img);
+      });
+      document.getElementById('lightbox').addEventListener('click', ()=>{ document.getElementById('lightbox').style.display='none'; });
+      const bookBtn = document.getElementById('bookBtn');
+      bookBtn.style.display = isAdmin ? 'none' : 'inline-block';
+      bookBtn.addEventListener('click', ()=>{ window.location.href = `/booking.html?vendorId=${id}`; });
+      // Map
+      const lat = (v.location && (v.location.lat || v.location.latitude)) || 0;
+      const lng = (v.location && (v.location.lng || v.location.longitude)) || 0;
+      const map = L.map('map', { zoomControl: true }).setView([lat, lng], (lat||lng)? 14 : 2);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
+      if(lat||lng){ L.marker([lat, lng]).addTo(map); }
+    }
+    load();
+  </script>
+  <style>
+    .map-box{height:200px;border:1px solid #eee;border-radius:12px;position:relative;z-index:0;overflow:hidden}
+    .map-box-small{height:150px;border:1px solid #eee;border-radius:8px;position:relative;z-index:0;overflow:hidden}
+    .leaflet-pane, .leaflet-container{z-index:0}
+  </style>
+</body>
+</html>
+

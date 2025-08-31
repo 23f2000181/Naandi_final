@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vendor - Product</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+</head>
+<body>
+  <header class="topnav">
+    <div class="logo">Vendors</div>
+    <nav class="mainnav">
+      <a href="/index.html">Home</a>
+      <a href="/index.html#services">Services</a>
+      <a href="/services.html">Vendor</a>
+      <a href="/vendor-register.html">Vendor Register</a>
+      <a href="/index.html#about">About Us</a>
+    </nav>
+    <nav class="rightnav">
+      <a href="/signin.html">Sign In</a>
+      <a class="pill" href="/register.html">Register</a>
+    </nav>
+  </header>
+  <main class="container">
+    <div class="card" style="padding:0">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px">
+        <div>
+          <div id="hero" class="img-placeholder" style="height:260px;border-radius:12px"></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h2 id="name" style="margin:0">Vendor</h2>
+            <span class="chip" id="tag">Tag</span>
+          </div>
+          <div id="price" style="font-size:28px;font-weight:800;margin-top:6px">$0</div>
+          <div class="muted" style="margin:6px 0">Text</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <select><option>Value</option></select>
+            <select><option>Value</option></select>
+          </div>
+          <button id="bookBtn" class="btn" style="width:100%;margin-top:8px">Book Now</button>
+          <details style="margin-top:8px"><summary class="card-title" style="margin:0">Title</summary><small class="muted" id="faq">Answer the frequently asked question in a simple sentence, a longish paragraph, or even in a list.</small></details>
+        </div>
+      </div>
+      <div style="padding:0 16px 16px 16px">
+        <h3>Latest reviews</h3>
+        <div class="cards">
+          <div class="card"><div class="card-title">Review title</div><small class="muted">Review body</small></div>
+          <div class="card"><div class="card-title">Review title</div><small class="muted">Review body</small></div>
+          <div class="card"><div class="card-title">Review title</div><small class="muted">Review body</small></div>
+        </div>
+      </div>
+    </div>
+    <section class="card" style="margin-top:12px">
+      <h3 style="margin-top:0">Location</h3>
+      <div id="map" style="height:320px;border:1px solid #eee;border-radius:12px"></div>
+    </section>
+  </main>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+    async function load(){
+      const r = await fetch(`/api/vendors/${id}`);
+      const v = await r.json();
+      if(v.error){ return; }
+      document.getElementById('name').textContent = v.shopName || v.name;
+      document.getElementById('price').textContent = '$200-500';
+      const hero = document.getElementById('hero');
+      hero.style.background = v.images && v.images[0] ? `center/cover url(${v.images[0]})` : '#f1f3f5';
+      document.getElementById('faq').textContent = (v.description||'').slice(0,180) || '—';
+      const lat = (v.location && v.location.lat) || 0;
+      const lng = (v.location && v.location.lng) || 0;
+      const map = L.map('map').setView([lat, lng], (lat||lng)? 14:2);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
+      if(lat||lng){ L.marker([lat, lng]).addTo(map); }
+      document.getElementById('bookBtn').addEventListener('click', ()=>{ location.href = `/booking.html?vendorId=${id}`; });
+    }
+    load();
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vendor Media - Naandi</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <header class="topnav"><div class="logo">Add Photos or Videos</div></header>
+  <main class="container">
+    <form id="mediaForm" class="form" enctype="multipart/form-data">
+      <input type="hidden" name="tempId" id="tempId" />
+      <label>Address<input name="address" placeholder="Your shop or service area"></label>
+      <div class="grid-2">
+        <label>Latitude<input name="lat" id="lat"></label>
+        <label>Longitude<input name="lng" id="lng"></label>
+      </div>
+      <label>Upload Photos/Videos<input type="file" name="media" multiple></label>
+      <button class="btn" type="submit">Submit</button>
+    </form>
+    <div id="msg" class="muted" style="margin-top:10px"></div>
+  </main>
+  <script>
+    const params = new URLSearchParams(location.search);
+    document.getElementById('tempId').value = params.get('tempId') || '';
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(p=>{
+        document.getElementById('lat').value = p.coords.latitude;
+        document.getElementById('lng').value = p.coords.longitude;
+      });
+    }
+    document.getElementById('mediaForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const res = await fetch('/api/vendor/register/complete', { method:'POST', body: fd });
+      const data = await res.json();
+      document.getElementById('msg').textContent = data.message || data.error || '';
+    });
+  </script>
+</body>
+</html>
+

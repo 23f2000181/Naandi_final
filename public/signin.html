@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In - Naandi</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <header class="topnav"><div class="logo">Naandi</div></header>
+  <main class="auth-wrap">
+    <div class="auth-card">
+      <h2>Sign In</h2>
+      <form id="signinForm" class="form">
+        <label>Email<input name="email" type="email" required placeholder="you@example.com"></label>
+        <label>Password<input name="password" type="password" required placeholder="••••••••"></label>
+        <button class="btn" type="submit">Sign In</button>
+      </form>
+      <div id="msg" class="auth-footer">Admins and customers can sign in here. Vendors: use the same form with your registered email and password if available, or use Vendor Login by mobile/password.</div>
+    </div>
+  </main>
+  <script>
+    document.getElementById('signinForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const body = Object.fromEntries(new FormData(e.target));
+      // Single endpoint for all roles
+      const res = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+      const isJSON = (res.headers.get('content-type')||'').includes('application/json');
+      const data = isJSON ? await res.json() : { ok:false, error: await res.text() };
+      if(data && data.ok){
+        if(data.role==='admin'){ localStorage.setItem('adminEmail', body.email); window.location.replace('/admin.html'); return; }
+        if(data.role==='vendor'){ localStorage.setItem('vendorId', data.vendorId); window.location.replace('/vendor-profile.html'); return; }
+        window.location.replace('/index.html');
+        return;
+      }
+      document.getElementById('msg').textContent = (data && (data.error||data.message)) || 'Sign in failed';
+    });
+  </script>
+</body>
+</html>
+

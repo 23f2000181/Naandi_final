@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Naandi - Home</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.cdnfonts.com/css/dauphin" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <header class="topnav">
+    <div class="logo">Naandi</div>
+    <nav class="mainnav">
+      <a href="/index.html">Home</a>
+      <a href="/services.html">Services</a>
+      <a href="/vendor-register.html">Vendor</a>
+      <a href="#about">About Us</a>
+    </nav>
+    <nav class="rightnav">
+      <a href="/signin.html">Sign In</a>
+      <a class="pill" href="/register.html">Register</a>
+    </nav>
+  </header>
+  
+  <!-- Professional Hero Section -->
+  <section class="hero-section">
+    <div class="hero-background">
+      <!-- Background Image Slideshow -->
+      <div class="hero-slideshow">
+        <div class="slide active" style="background-image: url('https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&h=800&fit=crop')"></div>
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=1200&h=800&fit=crop')"></div>
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1200&h=800&fit=crop')"></div>
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1200&h=800&fit=crop')"></div>
+      </div>
+      <div class="hero-overlay"></div>
+      <div class="hero-watermark"></div>
+    </div>
+    <div class="hero-container">
+      <div class="hero-content">
+        <h1 class="brandword">Naandi</h1>
+        <p class="hero-tagline">Your Perfect Event Partner</p>
+        <p class="hero-description">Connect with verified vendors for unforgettable celebrations</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/services.html">Explore Services</a>
+          <a class="btn btn-secondary" href="/vendor-register.html">Become a Vendor</a>
+        </div>
+        <div class="hero-stats">
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-image-placeholder">
+          <div class="floating-card card-1">
+            <div class="card-icon">📸</div>
+            <div class="card-text">Wedding Photography</div>
+          </div>
+          <div class="floating-card card-2">
+            <div class="card-icon">🎵</div>
+            <div class="card-text">Live Music</div>
+          </div>
+          <div class="floating-card card-3">
+            <div class="card-icon">🍽️</div>
+            <div class="card-text">Catering</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="main-container">
+
+
+    <!-- Payment Information Section -->
+    <section class="payment-section">
+      <div class="section-header">
+        <h2>Secure & Transparent Payments</h2>
+        <p class="section-subtitle">Your money is safe with us</p>
+      </div>
+      <div class="payment-cards">
+        <div class="payment-card">
+          <div class="card-icon">🔒</div>
+          <h3>Secure Payments</h3>
+          <p>Escrow-based release after event confirmation</p>
+          <div class="rating">★★★★★</div>
+        </div>
+        <div class="payment-card">
+          <div class="card-icon">💎</div>
+          <h3>Transparent Pricing</h3>
+          <p>No hidden charges; view all inclusions upfront</p>
+          <div class="rating">★★★★★</div>
+        </div>
+        <div class="payment-card">
+          <div class="card-icon">💳</div>
+          <h3>Flexible Options</h3>
+          <p>Pay in milestones that match your plan</p>
+          <div class="rating">★★★★★</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section">
+      <div class="section-header">
+        <h2>What Our Customers Say</h2>
+        <p class="section-subtitle">Real experiences from real people</p>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-content">
+            <div class="rating">★★★★★</div>
+            <p>"Smooth booking and excellent vendors. Highly recommended."</p>
+          </div>
+          <div class="testimonial-author">
+            <div class="author-avatar"></div>
+            <div class="author-info">
+              <h4>Basanthi Sree</h4>
+              <span>Wedding Client</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-content">
+            <div class="rating">★★★★★</div>
+            <p>"Admin approval was instant, vendors reached out quickly."</p>
+          </div>
+          <div class="testimonial-author">
+            <div class="author-avatar"></div>
+            <div class="author-info">
+              <h4>Rakesh Rao</h4>
+              <span>Corporate Event</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-content">
+            <div class="rating">★★★★★</div>
+            <p>"Great UI and clear payment steps. Will use again."</p>
+          </div>
+          <div class="testimonial-author">
+            <div class="author-avatar"></div>
+            <div class="author-info">
+              <h4>Sanviya Das</h4>
+              <span>Birthday Party</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+      <div class="cta-container">
+        <h2>Ready to Start Your Event Journey?</h2>
+        <p>Join thousands of happy customers who found their perfect vendors</p>
+        <div class="cta-actions">
+          <a class="btn btn-primary" href="/services.html">Find Vendors</a>
+          <a class="btn btn-outline" href="/vendor-register.html">Join as Vendor</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Team Section -->
+    <section id="about" class="team-section">
+      <div class="section-header">
+        <h2>Our Team</h2>
+        <p class="section-subtitle">Dedicated to making your events special</p>
+      </div>
+      <div class="team-placeholder">
+        <div class="team-content">
+          <p>Meet the passionate team behind Naandi</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Professional Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-main">
+        <div class="footer-brand">
+          <div class="footer-logo">Naandi</div>
+          <p>Your perfect event partner</p>
+          <div class="social-links">
+            <a href="#" class="social-link">f</a>
+            <a href="#" class="social-link">x</a>
+            <a href="#" class="social-link">ⓘ</a>
+          </div>
+        </div>
+        <div class="footer-links">
+          <div class="footer-column">
+            <h5>Get Started</h5>
+            <a href="/services.html">Discover</a>
+            <a href="/services.html">Services</a>
+            <a href="/services.html">Pricing</a>
+          </div>
+          <div class="footer-column">
+            <h5>Docs</h5>
+            <a href="#">Guides</a>
+            <a href="#">Security</a>
+            <a href="#">Policies</a>
+          </div>
+          <div class="footer-column">
+            <h5>Support</h5>
+            <a href="#">Help Center</a>
+            <a href="#">Contact</a>
+            <a href="#">Community</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© <span id="yr"></span> Naandi. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/client.js"></script>
+  <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+
+  <!-- Hero Slideshow Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const slides = document.querySelectorAll('.hero-slideshow .slide');
+      let currentSlide = 0;
+
+      function showSlide(index) {
+        // Remove active class from all slides
+        slides.forEach(slide => slide.classList.remove('active'));
+
+        // Add active class to current slide
+        slides[index].classList.add('active');
+      }
+
+      function nextSlide() {
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
+      }
+
+      // Start slideshow
+      showSlide(currentSlide);
+
+      // Change slide every 4 seconds
+      setInterval(nextSlide, 4000);
+    });
+  </script>
+</body>
+</html>
+

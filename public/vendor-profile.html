@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vendor Dashboard - Naandi</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <header class="topnav">
+    <div class="logo">Naandi</div>
+    <nav class="mainnav">
+      <a href="/index.html">Home</a>
+      <a href="/services.html">Services</a>
+      <a href="/vendor-register.html">Vendor</a>
+      <a href="/index.html#about">About</a>
+    </nav>
+    <nav class="rightnav">
+      <span id="vendorNameNav" class="muted">Loading...</span>
+      <a href="/signin.html" onclick="localStorage.clear()">Logout</a>
+    </nav>
+  </header>
+  
+  <main class="vendor-dashboard">
+    <!-- Sidebar -->
+    <aside class="vendor-sidebar">
+      <div class="vendor-profile-card">
+        <div class="avatar-container">
+          <img id="vendorAvatar" src="/uploads/default.png" alt="Profile Picture" class="avatar-clickable" />
+          <div class="avatar-overlay">📷</div>
+        </div>
+        <div class="vendor-info">
+          <h3 id="vendorName">Loading...</h3>
+          <p class="muted" id="vendorEmail">Loading...</p>
+          <div class="vendor-status">
+            <span class="status-badge approved">✓ Approved</span>
+          </div>
+        </div>
+      </div>
+      
+      <nav class="vendor-nav">
+        <a href="#dashboard" class="nav-item active" data-tab="dashboard">
+          <span class="nav-icon">📊</span>Dashboard
+        </a>
+        <a href="#profile" class="nav-item" data-tab="profile">
+          <span class="nav-icon">👤</span>Profile
+        </a>
+        <a href="#orders" class="nav-item" data-tab="orders">
+          <span class="nav-icon">📋</span>Orders
+        </a>
+        <a href="#availability" class="nav-item" data-tab="availability">
+          <span class="nav-icon">📅</span>Availability
+        </a>
+        <a href="#earnings" class="nav-item" data-tab="earnings">
+          <span class="nav-icon">💰</span>Earnings
+        </a>
+        <a href="#settings" class="nav-item" data-tab="settings">
+          <span class="nav-icon">⚙️</span>Settings
+        </a>
+      </nav>
+    </aside>
+    
+    <!-- Main Content -->
+    <section class="vendor-main">
+      <div id="status" class="status-message"></div>
+      
+      <!-- Dashboard Tab -->
+      <div id="dashboard" class="tab-content active">
+        <div class="dashboard-header">
+          <h2>Dashboard</h2>
+          <p class="muted">Welcome back! Here's your business overview</p>
+        </div>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📋</div>
+            <div class="stat-content">
+              <h3 id="totalOrders">0</h3>
+              <p>Total Orders</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-content">
+              <h3 id="totalEarnings">₹0</h3>
+              <p>Total Earnings</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-content">
+              <h3 id="avgRating">4.5</h3>
+              <p>Average Rating</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-content">
+              <h3 id="availableDays">0</h3>
+              <p>Available Days</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="dashboard-sections">
+          <div class="section-card">
+            <h3>Recent Orders</h3>
+            <div id="recentOrders" class="orders-list">
+              <p class="muted">No recent orders</p>
+            </div>
+          </div>
+          
+          <div class="section-card">
+            <h3>Quick Actions</h3>
+            <div class="quick-actions">
+              <button class="action-btn" onclick="showTab('profile')">
+                <span>✏️</span>Edit Profile
+              </button>
+              <button class="action-btn" onclick="showTab('availability')">
+                <span>📅</span>Set Availability
+              </button>
+              <button class="action-btn" onclick="showTab('orders')">
+                <span>📋</span>View Orders
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Profile Tab -->
+      <div id="profile" class="tab-content">
+        <div class="tab-header">
+          <h2>Profile Settings</h2>
+          <p class="muted">Manage your business profile and information</p>
+        </div>
+        
+        <form id="profileForm" class="form" enctype="multipart/form-data">
+          <div class="form-section">
+            <h3>Basic Information</h3>
+            <div class="form-grid">
+              <label>Business Name<input name="shopName" placeholder="Your business name"></label>
+              <label>Contact Email<input name="email" type="email" placeholder="business@example.com"></label>
+            </div>
+            <label>Business Description<textarea name="description" rows="4" placeholder="Describe your services, experience, and what makes you unique"></textarea></label>
+          </div>
+          
+          <div class="form-section">
+            <h3>Location & Contact</h3>
+            <label>Business Address<input name="address" placeholder="Your shop or service area address"></label>
+            <div class="grid-2">
+              <label>Latitude<input name="lat" id="lat" placeholder="Auto-detected"></label>
+              <label>Longitude<input name="lng" id="lng" placeholder="Auto-detected"></label>
+            </div>
+          </div>
+          
+          <div class="form-section">
+            <h3>Profile Picture</h3>
+            <label>Upload New Picture<input type="file" name="profilePic" accept="image/*"></label>
+            <small class="muted">Recommended: Square image, 500x500px or larger</small>
+          </div>
+          
+          <button class="btn" type="submit">Save Changes</button>
+        </form>
+      </div>
+      
+      <!-- Orders Tab -->
+      <div id="orders" class="tab-content">
+        <div class="tab-header">
+          <h2>Orders Management</h2>
+          <p class="muted">View and manage your bookings</p>
+        </div>
+        
+        <div class="orders-filters">
+          <button class="filter-btn active" data-filter="all">All Orders</button>
+          <button class="filter-btn" data-filter="pending">Pending</button>
+          <button class="filter-btn" data-filter="confirmed">Confirmed</button>
+          <button class="filter-btn" data-filter="completed">Completed</button>
+        </div>
+        
+        <div id="ordersList" class="orders-grid">
+          <p class="muted">Loading orders...</p>
+        </div>
+      </div>
+      
+      <!-- Availability Tab -->
+      <div id="availability" class="tab-content">
+        <div class="tab-header">
+          <h2>Availability Calendar</h2>
+          <p class="muted">Set your available dates for bookings</p>
+        </div>
+        
+        <div class="availability-section">
+          <div class="calendar-controls">
+            <input type="date" id="datePicker" />
+            <button class="btn btn-light" id="addDate" type="button">Add Date</button>
+            <button class="btn btn-light" id="clearAll" type="button">Clear All</button>
+          </div>
+          
+          <div class="availability-display">
+            <h3>Available Dates</h3>
+            <div id="dates" class="availability-chips"></div>
+          </div>
+          
+          <button class="btn" id="saveAvail" type="button">Save Availability</button>
+        </div>
+      </div>
+      
+      <!-- Earnings Tab -->
+      <div id="earnings" class="tab-content">
+        <div class="tab-header">
+          <h2>Earnings & Analytics</h2>
+          <p class="muted">Track your income and performance</p>
+        </div>
+        
+        <div class="earnings-overview">
+          <div class="earnings-card">
+            <h3>This Month</h3>
+            <div class="earnings-amount">₹0</div>
+            <p class="muted">0 orders</p>
+          </div>
+          <div class="earnings-card">
+            <h3>Last Month</h3>
+            <div class="earnings-amount">₹0</div>
+            <p class="muted">0 orders</p>
+          </div>
+          <div class="earnings-card">
+            <h3>Total</h3>
+            <div class="earnings-amount">₹0</div>
+            <p class="muted">0 orders</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Settings Tab -->
+      <div id="settings" class="tab-content">
+        <div class="tab-header">
+          <h2>Account Settings</h2>
+          <p class="muted">Manage your account preferences</p>
+        </div>
+        
+        <div class="settings-section">
+          <h3>Notifications</h3>
+          <label class="setting-item">
+            <input type="checkbox" checked> Email notifications for new orders
+          </label>
+          <label class="setting-item">
+            <input type="checkbox" checked> SMS notifications for bookings
+          </label>
+        </div>
+        
+        <div class="settings-section">
+          <h3>Account</h3>
+          <button class="btn btn-light">Change Password</button>
+          <button class="btn btn-light" style="margin-left: 10px;">Download Data</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const socket = io();
+    const vendorId = localStorage.getItem('vendorId');
+    if(!vendorId){ window.location.href = '/signin.html'; }
+    
+    // Initialize vendor data
+    let vendorData = {};
+    
+    // Load vendor data
+    async function loadVendorData() {
+      try {
+        const res = await fetch(`/api/vendors/${vendorId}`);
+        vendorData = await res.json();
+        
+        // Update UI
+        document.getElementById('vendorName').textContent = vendorData.name || 'Vendor';
+        document.getElementById('vendorNameNav').textContent = vendorData.name || 'Vendor';
+        document.getElementById('vendorEmail').textContent = vendorData.email || '';
+        
+        if (vendorData.profilePic) {
+          document.getElementById('vendorAvatar').src = vendorData.profilePic;
+        }
+        
+        // Load form data
+        if (vendorData.shopName) document.querySelector('input[name="shopName"]').value = vendorData.shopName;
+        if (vendorData.description) document.querySelector('textarea[name="description"]').value = vendorData.description;
+        if (vendorData.address) document.querySelector('input[name="address"]').value = vendorData.address;
+        if (vendorData.email) document.querySelector('input[name="email"]').value = vendorData.email;
+        
+        // Load stats
+        loadDashboardStats();
+        loadOrders();
+        
+      } catch (error) {
+        showStatus('Error loading vendor data', 'error');
+      }
+    }
+    
+    // Tab system
+    function showTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      
+      // Show selected tab
+      document.getElementById(tabName).classList.add('active');
+      document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    }
+    
+    // Status messages
+    function showStatus(message, type = 'success') {
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = message;
+      statusEl.className = `status-message ${type}`;
+      statusEl.style.display = 'block';
+      
+      setTimeout(() => {
+        statusEl.style.display = 'none';
+      }, 3000);
+    }
+    
+    // Dashboard stats
+    async function loadDashboardStats() {
+      try {
+        // Load orders count
+        const ordersRes = await fetch(`/api/vendor/${vendorId}/orders`);
+        const orders = await ordersRes.json();
+        document.getElementById('totalOrders').textContent = orders.length || 0;
+        
+        // Load availability count
+        const availRes = await fetch(`/api/vendor/${vendorId}/availability`);
+        const availability = await availRes.json();
+        document.getElementById('availableDays').textContent = availability.length || 0;
+        
+        // Calculate earnings (mock data for now)
+        const totalEarnings = orders.length * 5000; // Mock calculation
+        document.getElementById('totalEarnings').textContent = `₹${totalEarnings.toLocaleString()}`;
+        
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+    
+    // Load orders
+    async function loadOrders() {
+      try {
+        const res = await fetch(`/api/vendor/${vendorId}/orders`);
+        const orders = await res.json();
+        
+        // Update recent orders
+        const recentOrdersEl = document.getElementById('recentOrders');
+        if (orders.length === 0) {
+          recentOrdersEl.innerHTML = '<p class="muted">No recent orders</p>';
+        } else {
+          recentOrdersEl.innerHTML = orders.slice(0, 3).map(order => `
+            <div class="order-item">
+              <div class="order-header">
+                <strong>${order.customerName}</strong>
+                <span class="order-date">${order.date}</span>
+              </div>
+              <p class="muted">${order.notes || 'No notes'}</p>
+            </div>
+          `).join('');
+        }
+        
+        // Update orders list
+        const ordersListEl = document.getElementById('ordersList');
+        if (orders.length === 0) {
+          ordersListEl.innerHTML = '<p class="muted">No orders found</p>';
+        } else {
+          ordersListEl.innerHTML = orders.map(order => `
+            <div class="order-card">
+              <div class="order-info">
+                <h4>${order.customerName}</h4>
+                <p class="muted">${order.date} • ${order.mobile || 'No phone'}</p>
+                <p>${order.notes || 'No additional notes'}</p>
+              </div>
+              <div class="order-status">
+                <span class="status-badge ${order.status}">${order.status}</span>
+              </div>
+            </div>
+          `).join('');
+        }
+        
+      } catch (error) {
+        console.error('Error loading orders:', error);
+      }
+    }
+    
+    // Socket events
+    socket.emit('join:vendor', vendorId);
+    socket.on('vendor:approved', () => { 
+      showStatus('Your account has been approved!', 'success');
+    });
+    socket.on('vendor:bookingApproved', (b) => {
+      showStatus(`New booking approved: ${b.customerName} on ${b.date}`, 'success');
+      loadOrders();
+      loadDashboardStats();
+    });
+    
+    // Geolocation
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(p => {
+        document.getElementById('lat').value = p.coords.latitude;
+        document.getElementById('lng').value = p.coords.longitude;
+      });
+    }
+    
+    // Profile form
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      try {
+        const res = await fetch(`/api/vendor/${vendorId}/profile`, { method:'POST', body: fd });
+        const data = await res.json();
+        if (data.ok) {
+          showStatus('Profile updated successfully!', 'success');
+          loadVendorData();
+        } else {
+          showStatus('Error updating profile', 'error');
+        }
+      } catch (error) {
+        showStatus('Error updating profile', 'error');
+      }
+    });
+
+    // Availability
+    const datePicker = document.getElementById('datePicker');
+    const datesWrap = document.getElementById('dates');
+    const selected = new Set();
+    
+    function renderDates(){
+      datesWrap.innerHTML='';
+      [...selected].forEach(d => { 
+        const s = document.createElement('span'); 
+        s.className='chip'; 
+        s.textContent = d; 
+        s.addEventListener('click', () => {
+          selected.delete(d); 
+          renderDates();
+        }); 
+        datesWrap.appendChild(s); 
+      });
+    }
+    
+    document.getElementById('addDate').addEventListener('click', () => { 
+      if(datePicker.value){ 
+        selected.add(datePicker.value); 
+        renderDates(); 
+      }
+    });
+    
+    document.getElementById('clearAll').addEventListener('click', () => {
+      selected.clear();
+      renderDates();
+    });
+    
+    document.getElementById('saveAvail').addEventListener('click', async () => {
+      try {
+        await fetch(`/api/vendor/${vendorId}/availability`, { 
+          method:'POST', 
+          headers:{'Content-Type':'application/json'}, 
+          body: JSON.stringify({ dates:[...selected] }) 
+        });
+        showStatus('Availability saved successfully!', 'success');
+        loadDashboardStats();
+      } catch (error) {
+        showStatus('Error saving availability', 'error');
+      }
+    });
+    
+    // Load initial data
+    loadVendorData();
+    (async () => { 
+      const r = await fetch(`/api/vendor/${vendorId}/availability`); 
+      const arr = await r.json(); 
+      arr.forEach(a => selected.add(a.date)); 
+      renderDates(); 
+    })();
+    
+    // Tab navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const tabName = item.getAttribute('data-tab');
+        showTab(tabName);
+      });
+    });
+    
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        // TODO: Implement filtering
+      });
+    });
+    
+    // Avatar lightbox functionality
+    const vendorAvatar = document.getElementById('vendorAvatar');
+    const avatarLightbox = document.getElementById('avatarLightbox');
+    const avatarLightboxImg = document.getElementById('avatarLightboxImg');
+    const avatarLightboxClose = document.querySelector('.avatar-lightbox-close');
+    
+    if (vendorAvatar) {
+      vendorAvatar.addEventListener('click', () => {
+        avatarLightboxImg.src = vendorAvatar.src;
+        avatarLightbox.style.display = 'flex';
+      });
+    }
+    
+    if (avatarLightboxClose) {
+      avatarLightboxClose.addEventListener('click', () => {
+        avatarLightbox.style.display = 'none';
+      });
+    }
+    
+    if (avatarLightbox) {
+      avatarLightbox.addEventListener('click', (e) => {
+        if (e.target === avatarLightbox) {
+          avatarLightbox.style.display = 'none';
+        }
+      });
+    }
+  </script>
+  
+  <!-- Avatar Lightbox -->
+  <div id="avatarLightbox" class="avatar-lightbox">
+    <div class="avatar-lightbox-content">
+      <img id="avatarLightboxImg" src="" alt="Profile Picture" />
+      <button class="avatar-lightbox-close">✕</button>
+    </div>
+  </div>
+  
+  <style>
+    .profile-header{display:flex;align-items:center;gap:16px;margin-bottom:24px;padding:20px;background:#fff;border-radius:12px;border:1px solid var(--border)}
+    .avatar-container{position:relative;cursor:pointer}
+    .avatar-clickable{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--border);transition:transform 0.2s}
+    .avatar-clickable:hover{transform:scale(1.05)}
+    .avatar-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.6);color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:14px;opacity:0;transition:opacity 0.2s}
+    .avatar-container:hover .avatar-overlay{opacity:1}
+    .avatar-lightbox{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:9999}
+    .avatar-lightbox-content{position:relative;max-width:90vw;max-height:90vh}
+    .avatar-lightbox-content img{max-width:100%;max-height:100%;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+    .avatar-lightbox-close{position:absolute;top:-40px;right:0;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:8px}
+  </style>
+</body>
+</html>
+

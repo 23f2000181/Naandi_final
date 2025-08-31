@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vendor Plans - Naandi</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <header class="topnav"><div class="logo">Vendor Details</div></header>
+  <main class="container">
+    <form id="plansForm" class="form">
+      <input type="hidden" name="tempId" id="tempId" />
+      <label>Enter Your Business Name<input name="businessName" required></label>
+      <label>Standard Plan<textarea name="standardPlan" rows="3" placeholder="Describe what's included and base price"></textarea></label>
+      <label>Other Plans with Prices<textarea name="otherPlans" rows="6" placeholder="Plan A - ₹X\nPlan B - ₹Y"></textarea></label>
+      <button class="btn" type="submit">Next</button>
+    </form>
+  </main>
+  <script>
+    const params = new URLSearchParams(location.search);
+    document.getElementById('tempId').value = params.get('tempId') || '';
+    document.getElementById('plansForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const body = Object.fromEntries(fd);
+      const res = await fetch('/api/vendor/register/plans', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      const data = await res.json();
+      if(data.ok){
+        window.location.href = `/vendor-media.html?tempId=${fd.get('tempId')}`;
+      }
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services & Vendors - Naandi</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <header class="topnav">
+      <div class="logo">Naandi</div>
+      <nav class="mainnav">
+        <a href="/index.html">Home</a>
+        <a href="/services.html">Services</a>
+        <a href="/vendor-register.html">Vendor</a>
+        <a href="/index.html#about">About</a>
+      </nav>
+      <nav class="rightnav">
+        <a href="/signin.html">Sign In</a>
+        <a class="pill" href="/register.html">Register</a>
+      </nav>
+    </header>
+    
+    <main class="services-page">
+      <div class="services-hero">
+        <div class="hero-content">
+          <h1>Find Your Perfect Event Partner</h1>
+          <p class="muted">Discover verified vendors for your special occasions</p>
+          <div class="hero-stats">
+          </div>
+        </div>
+      </div>
+      
+      <div class="services-container">
+        <div class="search-header">
+          <div class="search-content">
+            <h2>Browse Services</h2>
+            <p class="muted">Find the perfect vendor for your event</p>
+          </div>
+          <div class="search-controls">
+            <div class="filter-container">
+              <button class="filter-toggle-btn" id="filterToggle">
+                <span class="filter-icon">🔽</span>
+                <span class="filter-text">Filters</span>
+                <span class="active-filters-count" id="activeFiltersCount">0</span>
+              </button>
+              <!-- Filters Dropdown -->
+              <div class="filters-dropdown" id="filtersDropdown">
+                <div class="filters-header">
+                  <h3>Filter Vendors</h3>
+                  <button class="clear-filters" id="clearFilters">Clear All</button>
+                </div>
+                <div class="filters-content">
+                  <div class="filter-group">
+                    <h4>Service Category</h4>
+                    <div class="filter-options">
+                      <label class="filter-option">
+                        <input type="checkbox" value="photography">
+                        <span class="checkmark"></span>
+                        Photography
+                      </label>
+                      <label class="filter-option">
+                        <input type="checkbox" value="catering">
+                        <span class="checkmark"></span>
+                        Catering
+                      </label>
+                      <label class="filter-option">
+                        <input type="checkbox" value="music">
+                        <span class="checkmark"></span>
+                        Music & Entertainment
+                      </label>
+                      <label class="filter-option">
+                        <input type="checkbox" value="decoration">
+                        <span class="checkmark"></span>
+                        Decoration
+                      </label>
+                      <label class="filter-option">
+                        <input type="checkbox" value="venue">
+                        <span class="checkmark"></span>
+                        Venue
+                      </label>
+                      <label class="filter-option">
+                        <input type="checkbox" value="transport">
+                        <span class="checkmark"></span>
+                        Transportation
+                      </label>
+                    </div>
+                  </div>
+                  <div class="filter-group">
+                    <h4>Price Range</h4>
+                    <div class="filter-options">
+                      <label class="filter-option">
+                        <input type="checkbox" value="budget">
+                        <span class="checkmark"></span>
+                        Under ₹10,000
+                      </label>
+                      <label class="filter-option">
+                        <input type="checkbox" value="mid">
+                        <span class="checkmark"></span>
+                        ₹10,000 - ₹50,000
+                      </label>
+                      <label class="filter-option">
+                        <input type="checkbox" value="premium">
+                        <span class="checkmark"></span>
+                        Above ₹50,000
+                      </label>
+                    </div>
+                  </div>
+                  <div class="filter-group">
+                    <h4>Location</h4>
+                    <div class="filter-options">
+                      <label class="filter-option">
+                        <input type="checkbox" value="bangalore">
+                        <span class="checkmark"></span>
+                        Bangalore
+                      </label>
+                      <label class="filter-option">
+                        <input type="checkbox" value="mumbai">
+                        <span class="checkmark"></span>
+                        Mumbai
+                      </label>
+                      <label class="filter-option">
+                        <input type="checkbox" value="delhi">
+                        <span class="checkmark"></span>
+                        Delhi
+                      </label>
+                      <label class="filter-option">
+                        <input type="checkbox" value="chennai">
+                        <span class="checkmark"></span>
+                        Chennai
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" placeholder="Search vendors, services, or locations..." id="searchInput">
+            </div>
+            <select id="sortSelect" class="sort-select">
+              <option value="rating">Sort by Rating</option>
+              <option value="price">Sort by Price</option>
+              <option value="distance">Sort by Distance</option>
+              <option value="recent">Most Recent</option>
+            </select>
+          </div>
+        </div>
+
+
+          <section class="vendors-section">
+            <div class="vendors-header">
+              <div class="results-info">
+                <span id="resultsCount">0</span> vendors found
+              </div>
+              <div class="view-options">
+                <button class="view-btn active" data-view="grid">Grid</button>
+                <button class="view-btn" data-view="list">List</button>
+              </div>
+            </div>
+            
+            <div class="vendors-grid" id="vendorsGrid">
+              <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Loading vendors...</p>
+              </div>
+            </div>
+            
+            <div class="vendors-pagination">
+              <button class="pagination-btn" disabled>← Previous</button>
+              <div class="page-numbers">
+                <span class="page-number active">1</span>
+                <span class="page-number">2</span>
+                <span class="page-number">3</span>
+              </div>
+              <button class="pagination-btn">Next →</button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+    
+    <script>
+      const socket = io();
+      const state = { list: [] };
+      
+      async function load(){ 
+        try {
+          const r = await fetch('/api/vendors'); 
+          state.list = await r.json(); 
+          apply(); 
+        } catch (error) {
+          console.error('Error loading vendors:', error);
+        }
+      }
+      
+      function apply(){
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        const cats = [...document.querySelectorAll('.filter-option input:checked')].map(x=>x.value);
+        let arr = state.list.filter(v => (v.shopName||v.name||'').toLowerCase().includes(q));
+        arr = arr.filter(v => !cats.length || cats.includes(v.category||'photography'));
+        render(arr);
+        updateResultsCount(arr.length);
+      }
+      
+      function render(list){
+        const wrap = document.getElementById('vendorsGrid'); 
+        wrap.innerHTML='';
+        
+        if (list.length === 0) {
+          wrap.innerHTML = `
+            <div class="no-results">
+              <div class="no-results-icon">🔍</div>
+              <h3>No vendors found</h3>
+              <p class="muted">Try adjusting your filters or search terms</p>
+            </div>
+          `;
+          return;
+        }
+        
+        list.forEach(v=>{
+          const vendorCard = document.createElement('div');
+          vendorCard.className = 'vendor-card';
+          vendorCard.innerHTML = `
+            <div class="vendor-image">
+              <img src="${v.profilePic || '/uploads/default.png'}" alt="${v.shopName || v.name}" onerror="this.src='/uploads/default.png'">
+              <div class="vendor-badge">Verified</div>
+            </div>
+            <div class="vendor-content">
+              <h3 class="vendor-name">${v.shopName || v.name}</h3>
+              <p class="vendor-description">${v.description || 'Professional event services'}</p>
+              <div class="vendor-meta">
+                <span class="vendor-rating">⭐⭐⭐⭐⭐ 4.8</span>
+                <span class="vendor-location">📍 ${v.address || 'Location not specified'}</span>
+              </div>
+              <div class="vendor-services">
+                <span class="service-tag">${v.services ? v.services.split(',')[0] : 'Event Services'}</span>
+              </div>
+              <div class="vendor-footer">
+                <span class="vendor-price">Starting from ₹5,000</span>
+                <a href="/vendor-product.html?id=${v._id || v.id}" class="btn btn-light">View Details</a>
+              </div>
+            </div>
+          `;
+          wrap.appendChild(vendorCard);
+        });
+      }
+      
+      function updateResultsCount(count) {
+        document.getElementById('resultsCount').textContent = count;
+      }
+
+      function updateActiveFiltersCount() {
+        const checkedFilters = document.querySelectorAll('.filter-option input:checked').length;
+        const countElement = document.getElementById('activeFiltersCount');
+        const toggleBtn = document.getElementById('filterToggle');
+
+        countElement.textContent = checkedFilters;
+
+        if (checkedFilters > 0) {
+          countElement.style.display = 'inline-block';
+          toggleBtn.classList.add('active');
+        } else {
+          countElement.style.display = 'none';
+          toggleBtn.classList.remove('active');
+        }
+      }
+
+      function toggleFiltersDropdown() {
+        const dropdown = document.getElementById('filtersDropdown');
+        const toggleBtn = document.getElementById('filterToggle');
+
+        dropdown.classList.toggle('show');
+        toggleBtn.classList.toggle('active');
+      }
+
+      function closeFiltersDropdown() {
+        const dropdown = document.getElementById('filtersDropdown');
+        const toggleBtn = document.getElementById('filterToggle');
+
+        dropdown.classList.remove('show');
+        toggleBtn.classList.remove('active');
+      }
+
+      // Event listeners
+      document.getElementById('searchInput').addEventListener('input', apply);
+      document.querySelectorAll('.filter-option input').forEach(x=> x.addEventListener('change', () => {
+        apply();
+        updateActiveFiltersCount();
+      }));
+
+      document.getElementById('clearFilters').addEventListener('click', () => {
+        document.querySelectorAll('.filter-option input').forEach(input => input.checked = false);
+        apply();
+        updateActiveFiltersCount();
+      });
+
+      // Filter dropdown toggle
+      document.getElementById('filterToggle').addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleFiltersDropdown();
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('filtersDropdown');
+        const toggleBtn = document.getElementById('filterToggle');
+
+        if (!dropdown.contains(e.target) && !toggleBtn.contains(e.target)) {
+          closeFiltersDropdown();
+        }
+      });
+
+      // Initialize filter count
+      updateActiveFiltersCount();
+      
+      // View toggle
+      document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          // TODO: Implement view switching
+        });
+      });
+      
+      socket.on('vendors:updated', load);
+      load();
+    </script>
+</body>
+</html>

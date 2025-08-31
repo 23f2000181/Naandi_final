@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Booking - Naandi</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <header class="topnav"><div class="logo">Booking</div></header>
+  <main class="container">
+    <form id="bookingForm" class="form">
+      <input type="hidden" name="vendorId" id="vendorId" />
+      <label>Your Name<input name="customerName" required></label>
+      <label>Your Mobile<input name="mobile" required></label>
+      <label>Date<input type="date" name="date" required></label>
+      <label>Notes<textarea name="notes" rows="3"></textarea></label>
+      <button class="btn" type="submit">Submit</button>
+    </form>
+    <div id="msg" class="muted" style="margin-top:12px"></div>
+  </main>
+  <script>
+    const params = new URLSearchParams(location.search);
+    document.getElementById('vendorId').value = params.get('vendorId') || '';
+    document.getElementById('bookingForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const res = await fetch('/api/bookings', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(Object.fromEntries(fd)) });
+      const data = await res.json();
+      if(data.ok){
+        document.getElementById('msg').textContent = 'Booking submitted. Await admin approval.';
+      }
+    });
+  </script>
+</body>
+</html>
+

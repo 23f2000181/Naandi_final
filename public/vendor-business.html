@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Business Details - Naandi</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+<body>
+  <header class="topnav">
+    <div class="logo">Naandi</div>
+    <nav class="mainnav">
+      <a href="/index.html">Home</a>
+      <a href="/services.html">Services</a>
+      <a href="/vendor-register.html">Vendor</a>
+      <a href="/index.html#about">About</a>
+    </nav>
+    <nav class="rightnav">
+      <a href="/signin.html">Sign In</a>
+      <a class="pill" href="/register.html">Register</a>
+    </nav>
+  </header>
+  
+  <main class="vendor-registration">
+    <div class="registration-container">
+      <div class="registration-header">
+        <h1>Business Details</h1>
+        <p class="muted">Tell us about your services and showcase your work</p>
+        <div class="registration-steps">
+          <div class="step completed">
+            <div class="step-number">✓</div>
+            <div class="step-info">
+              <h4>Basic Information</h4>
+              <p>Completed</p>
+            </div>
+          </div>
+          <div class="step active">
+            <div class="step-number">2</div>
+            <div class="step-info">
+              <h4>Business Details</h4>
+              <p>Services & portfolio</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="registration-form">
+        <form id="bizForm" class="form" enctype="multipart/form-data">
+          <input type="hidden" name="tempId" id="tempId" />
+          
+          <div class="form-section">
+            <h3>Business Information</h3>
+            <p class="muted">Tell customers about your business</p>
+          </div>
+          
+          <div class="form-group">
+            <label>Business Name *</label>
+            <input name="businessName" required placeholder="Your business or brand name">
+          </div>
+          
+          <div class="form-group">
+            <label>Services Offered *</label>
+            <textarea name="services" rows="4" placeholder="List your main services (e.g., Wedding Photography, Event Catering, DJ Services, Decoration, Makeup & Styling, Venue Decoration, Live Music, etc.)"></textarea>
+            <small class="muted">Be specific about what you offer</small>
+          </div>
+          
+          <div class="form-group">
+            <label>Work Portfolio *</label>
+            <textarea name="portfolio" rows="4" placeholder="Describe your experience, past events, specializations, achievements, and what makes you unique"></textarea>
+            <small class="muted">Share your expertise and experience</small>
+          </div>
+          
+          <div class="form-group">
+            <label>Pricing Range *</label>
+            <textarea name="pricing" rows="3" placeholder="Starting from ₹X to ₹Y&#10;Include package details and what's included&#10;Example: Basic Package - ₹10,000, Premium Package - ₹25,000"></textarea>
+            <small class="muted">Be transparent about your pricing</small>
+          </div>
+          
+          <div class="form-section">
+            <h3>Location & Contact</h3>
+            <p class="muted">Help customers find you</p>
+          </div>
+          
+          <div class="form-group">
+            <label>Business Address</label>
+            <input name="address" placeholder="Your shop or service area address">
+          </div>
+          
+          <div class="form-group">
+            <label>Service Location</label>
+            <div id="locationMap" class="location-map"></div>
+            <div class="location-controls">
+              <button type="button" id="getLocation" class="btn-light">📍 Use Current Location</button>
+              <button type="button" id="pickLocation" class="btn-light">🗺️ Pick on Map</button>
+            </div>
+            <input type="hidden" name="lat" id="lat" />
+            <input type="hidden" name="lng" id="lng" />
+            <small class="muted">Set your service area for better customer matching</small>
+          </div>
+          
+          <div class="form-section">
+            <h3>Portfolio & Media</h3>
+            <p class="muted">Showcase your best work</p>
+          </div>
+          
+          <div class="form-group">
+            <div class="upload-tips">
+              <span class="tip">📸 Add 3-6 high quality images</span>
+              <span class="tip">🎥 Videos are also supported</span>
+              <span class="tip">📱 You can drag & drop files</span>
+            </div>
+            <div id="drop" class="dropzone">
+              <div class="dropzone-content">
+                <div class="dropzone-icon">📁</div>
+                <div class="dropzone-text">Drop photos/videos here or click to select</div>
+                <div class="dropzone-hint">JPG, PNG, MP4 supported • Max 10MB per file</div>
+              </div>
+              <input id="mediaInput" type="file" name="media" multiple style="display:none" />
+            </div>
+            <div id="thumbs" class="thumbs"></div>
+          </div>
+          
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">
+              <span>Submit Application</span>
+              <span class="btn-icon">✓</span>
+            </button>
+          </div>
+        </form>
+        
+        <div id="msg" class="status-message"></div>
+      </div>
+      
+      <div class="registration-benefits">
+        <h3>What Happens Next?</h3>
+        <div class="benefits-grid">
+          <div class="benefit-card">
+            <div class="benefit-icon">📋</div>
+            <h4>Review Process</h4>
+            <p>Our team will review your application within 24-48 hours</p>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-icon">✅</div>
+            <h4>Approval</h4>
+            <p>Once approved, you'll get access to your vendor dashboard</p>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-icon">🎯</div>
+            <h4>Start Earning</h4>
+            <p>Begin receiving booking requests from customers</p>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-icon">📱</div>
+            <h4>Notifications</h4>
+            <p>Get instant notifications for new bookings and messages</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>
+    const params = new URLSearchParams(location.search);
+    document.getElementById('tempId').value = params.get('tempId') || '';
+    
+    // Initialize map
+    let map, marker;
+    const locationMap = document.getElementById('locationMap');
+    
+    // Initialize map with default location (India center)
+    map = L.map('locationMap').setView([20.5937, 78.9629], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
+      maxZoom: 19, 
+      attribution: '© OpenStreetMap' 
+    }).addTo(map);
+    
+    // Handle current location button
+    document.getElementById('getLocation').addEventListener('click', () => {
+      if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(position => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          document.getElementById('lat').value = lat;
+          document.getElementById('lng').value = lng;
+          
+          map.setView([lat, lng], 14);
+          if(marker) map.removeLayer(marker);
+          marker = L.marker([lat, lng]).addTo(map);
+        }, () => {
+          alert('Could not get your location. Please pick manually on the map.');
+        });
+      } else {
+        alert('Geolocation not supported. Please pick manually on the map.');
+      }
+    });
+    
+    // Handle map click to pick location
+    map.on('click', (e) => {
+      const lat = e.latlng.lat;
+      const lng = e.latlng.lng;
+      
+      document.getElementById('lat').value = lat;
+      document.getElementById('lng').value = lng;
+      
+      if(marker) map.removeLayer(marker);
+      marker = L.marker([lat, lng]).addTo(map);
+    });
+    const drop = document.getElementById('drop');
+    const input = document.getElementById('mediaInput');
+    const thumbs = document.getElementById('thumbs');
+    const filesState = [];
+    function addFiles(fileList){
+      for(const f of fileList){
+        filesState.push(f);
+        const card = document.createElement('div');
+        card.className='thumb';
+        const isVideo = f.type.startsWith('video/');
+        const el = isVideo ? document.createElement('video') : document.createElement('img');
+        if(isVideo){ el.controls = true; }
+        el.src = URL.createObjectURL(f);
+        const rm = document.createElement('button'); rm.textContent='✕'; rm.addEventListener('click',()=>{ const i=filesState.indexOf(f); if(i>-1){ filesState.splice(i,1); } card.remove(); });
+        card.appendChild(el); card.appendChild(rm); thumbs.appendChild(card);
+      }
+    }
+    drop.addEventListener('click', ()=> input.click());
+    input.addEventListener('change', ()=> addFiles(input.files));
+    drop.addEventListener('dragover', (e)=>{ e.preventDefault(); drop.classList.add('dragover'); });
+    drop.addEventListener('dragleave', ()=> drop.classList.remove('dragover'));
+    drop.addEventListener('drop', (e)=>{ e.preventDefault(); drop.classList.remove('dragover'); addFiles(e.dataTransfer.files); });
+
+    document.getElementById('bizForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const raw = new FormData(e.target);
+      const tempId = raw.get('tempId');
+      const completeFd = new FormData();
+      completeFd.append('tempId', tempId);
+      completeFd.append('businessName', raw.get('businessName')||'');
+      completeFd.append('services', raw.get('services')||'');
+      completeFd.append('portfolio', raw.get('portfolio')||'');
+      completeFd.append('pricing', raw.get('pricing')||'');
+      completeFd.append('address', raw.get('address')||'');
+      completeFd.append('lat', raw.get('lat')||'');
+      completeFd.append('lng', raw.get('lng')||'');
+      for(const f of filesState){ completeFd.append('media', f); }
+      const r = await fetch('/api/vendor/register/complete', { method:'POST', body: completeFd });
+      const d = await r.json();
+      document.getElementById('msg').textContent = d.message || d.error || '';
+    });
+  </script>
+</body>
+</html>
+

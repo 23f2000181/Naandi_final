@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Naandi</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <header class="topnav">
+      <div class="logo">Naandi</div>
+      <nav class="mainnav">
+        <a href="/index.html">Home</a>
+        <a href="/services.html">Services</a>
+        <a href="/vendor-register.html">Vendor</a>
+        <a href="/index.html#about">About</a>
+      </nav>
+      <nav class="rightnav">
+        <span id="adminNameNav" class="muted">Loading...</span>
+        <a href="/signin.html" onclick="localStorage.clear()">Logout</a>
+      </nav>
+    </header>
+    
+    <main class="admin-dashboard">
+      <!-- Sidebar -->
+      <aside class="admin-sidebar">
+        <div class="admin-profile-card">
+          <div class="avatar-container">
+            <img id="adminAvatar" src="/uploads/default.png" alt="Admin Avatar" class="avatar-clickable" />
+            <div class="avatar-overlay">📷</div>
+          </div>
+          <div class="admin-info">
+            <h3 id="adminName">Admin</h3>
+            <p class="muted" id="adminEmail">admin@example.com</p>
+            <div class="admin-role">
+              <span class="role-badge">👑 Super Admin</span>
+            </div>
+          </div>
+          <form id="avatarForm" class="avatar-form" enctype="multipart/form-data">
+            <input type="file" name="photo" id="photo" accept="image/*" />
+            <button class="btn btn-light" type="submit">Upload Photo</button>
+          </form>
+        </div>
+        
+        <nav class="admin-nav">
+          <a href="#dashboard" class="nav-item active" data-tab="dashboard">
+            <span class="nav-icon">📊</span>Dashboard
+          </a>
+          <a href="#vendors" class="nav-item" data-tab="vendors">
+            <span class="nav-icon">👥</span>Vendors
+          </a>
+          <a href="#bookings" class="nav-item" data-tab="bookings">
+            <span class="nav-icon">📋</span>Bookings
+          </a>
+          <a href="#payments" class="nav-item" data-tab="payments">
+            <span class="nav-icon">💰</span>Payments
+          </a>
+          <a href="#analytics" class="nav-item" data-tab="analytics">
+            <span class="nav-icon">📈</span>Analytics
+          </a>
+          <a href="#settings" class="nav-item" data-tab="settings">
+            <span class="nav-icon">⚙️</span>Settings
+          </a>
+        </nav>
+      </aside>
+      
+      <!-- Main Content -->
+      <section class="admin-main">
+        <div id="status" class="status-message"></div>
+        
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+          <div class="dashboard-header">
+            <h2>Dashboard Overview</h2>
+            <p class="muted">Welcome back! Here's your platform overview</p>
+          </div>
+          
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">👥</div>
+              <div class="stat-content">
+                <h3 id="totalVendors">0</h3>
+                <p>Total Vendors</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">📋</div>
+              <div class="stat-content">
+                <h3 id="totalBookings">0</h3>
+                <p>Total Bookings</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">💰</div>
+              <div class="stat-content">
+                <h3 id="totalRevenue">₹0</h3>
+                <p>Total Revenue</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">⏳</div>
+              <div class="stat-content">
+                <h3 id="pendingRequests">0</h3>
+                <p>Pending Requests</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="dashboard-sections">
+            <div class="section-card">
+              <div class="section-header">
+                <h3>Recent Activity</h3>
+                <a href="#vendors" class="view-all" onclick="showTab('vendors')">View All</a>
+              </div>
+              <div id="recentActivity" class="activity-list">
+                <p class="muted">Loading recent activity...</p>
+              </div>
+            </div>
+            
+            <div class="section-card">
+              <div class="section-header">
+                <h3>Quick Actions</h3>
+              </div>
+              <div class="quick-actions">
+                <button class="action-btn" onclick="showTab('vendors')">
+                  <span>👥</span>Manage Vendors
+                </button>
+                <button class="action-btn" onclick="showTab('bookings')">
+                  <span>📋</span>View Bookings
+                </button>
+                <button class="action-btn" onclick="showTab('payments')">
+                  <span>💰</span>Payment Overview
+                </button>
+                <button class="action-btn" onclick="showTab('analytics')">
+                  <span>📈</span>View Analytics
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Vendors Tab -->
+        <div id="vendors" class="tab-content">
+          <div class="tab-header">
+            <h2>Vendor Management</h2>
+            <p class="muted">Approve, manage, and monitor vendor applications</p>
+          </div>
+          
+          <div class="vendors-filters">
+            <button class="filter-btn active" data-filter="pending">Pending Approval</button>
+            <button class="filter-btn" data-filter="approved">Approved Vendors</button>
+            <button class="filter-btn" data-filter="rejected">Rejected</button>
+          </div>
+          
+          <div class="vendors-section">
+            <div class="section-card">
+              <div class="section-header">
+                <h3>New Vendor Requests</h3>
+                <span class="badge" id="pendingCount">0</span>
+              </div>
+              <div id="newRequests" class="vendors-table">
+                <div class="table-placeholder">
+                  <p class="muted">No new requests</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="section-card">
+              <div class="section-header">
+                <h3>Approved Vendors</h3>
+              </div>
+              <div id="verifiedRequests" class="vendors-table">
+                <div class="table-placeholder">
+                  <p class="muted">No approved vendors</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Bookings Tab -->
+        <div id="bookings" class="tab-content">
+          <div class="tab-header">
+            <h2>Booking Management</h2>
+            <p class="muted">Monitor and manage customer bookings</p>
+          </div>
+          
+          <div class="bookings-filters">
+            <button class="filter-btn active" data-filter="pending">Pending</button>
+            <button class="filter-btn" data-filter="approved">Approved</button>
+            <button class="filter-btn" data-filter="completed">Completed</button>
+          </div>
+          
+          <div class="section-card">
+            <div class="section-header">
+              <h3>New Bookings</h3>
+              <span class="badge" id="newBookingsCount">0</span>
+            </div>
+            <div id="newBookings" class="bookings-grid">
+              <div class="table-placeholder">
+                <p class="muted">No new bookings</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Payments Tab -->
+        <div id="payments" class="tab-content">
+          <div class="tab-header">
+            <h2>Payment Overview</h2>
+            <p class="muted">Track revenue and payment status</p>
+          </div>
+          
+          <div class="payments-overview">
+            <div class="payment-card">
+              <h3>Total Revenue</h3>
+              <div class="payment-amount">₹25,500</div>
+              <p class="muted">This month</p>
+            </div>
+            <div class="payment-card">
+              <h3>Pending Payments</h3>
+              <div class="payment-amount">₹3,200</div>
+              <p class="muted">Awaiting clearance</p>
+            </div>
+            <div class="payment-card">
+              <h3>Commission</h3>
+              <div class="payment-amount">₹2,550</div>
+              <p class="muted">Platform fees</p>
+            </div>
+          </div>
+          
+          <div class="section-card">
+            <h3>Recent Transactions</h3>
+            <div class="transactions-list">
+              <p class="muted">No recent transactions</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Analytics Tab -->
+        <div id="analytics" class="tab-content">
+          <div class="tab-header">
+            <h2>Analytics & Reports</h2>
+            <p class="muted">Platform performance and insights</p>
+          </div>
+          
+          <div class="analytics-grid">
+            <div class="analytics-card">
+              <h3>Vendor Growth</h3>
+              <div class="analytics-chart">
+                <div class="chart-placeholder">📈</div>
+              </div>
+              <p class="muted">Monthly vendor registrations</p>
+            </div>
+            <div class="analytics-card">
+              <h3>Booking Trends</h3>
+              <div class="analytics-chart">
+                <div class="chart-placeholder">📊</div>
+              </div>
+              <p class="muted">Weekly booking patterns</p>
+            </div>
+            <div class="analytics-card">
+              <h3>Revenue Analysis</h3>
+              <div class="analytics-chart">
+                <div class="chart-placeholder">💰</div>
+              </div>
+              <p class="muted">Monthly revenue trends</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content">
+          <div class="tab-header">
+            <h2>Platform Settings</h2>
+            <p class="muted">Manage platform configuration</p>
+          </div>
+          
+          <div class="settings-section">
+            <h3>General Settings</h3>
+            <label class="setting-item">
+              <input type="checkbox" checked> Email notifications for new vendors
+            </label>
+            <label class="setting-item">
+              <input type="checkbox" checked> SMS notifications for bookings
+            </label>
+            <label class="setting-item">
+              <input type="checkbox" checked> Auto-approve verified vendors
+            </label>
+          </div>
+          
+          <div class="settings-section">
+            <h3>Platform</h3>
+            <button class="btn btn-light">Export Data</button>
+            <button class="btn btn-light" style="margin-left: 10px;">Backup Database</button>
+          </div>
+        </div>
+      </section>
+    </main>
+    <!-- Avatar Lightbox -->
+    <div id="avatarLightbox" class="avatar-lightbox">
+      <div class="avatar-lightbox-content">
+        <img id="avatarLightboxImg" src="" alt="Profile Picture" />
+        <button class="avatar-lightbox-close">✕</button>
+      </div>
+    </div>
+    <style>
+      .admin-shell{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 56px)}
+      .admin-sidebar{border-right:1px solid #eee;padding:16px 12px;display:flex;flex-direction:column;gap:16px}
+      .admin-profile{display:grid;grid-template-columns:56px 1fr;gap:8px;align-items:center}
+      .avatar-container{position:relative;cursor:pointer}
+      .avatar-clickable{width:56px;height:56px;border-radius:50%;object-fit:cover;border:1px solid #eee;transition:transform 0.2s}
+      .avatar-clickable:hover{transform:scale(1.05)}
+      .avatar-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.6);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;opacity:0;transition:opacity 0.2s}
+      .avatar-container:hover .avatar-overlay{opacity:1}
+      .avatar-lightbox{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:9999}
+      .avatar-lightbox-content{position:relative;max-width:90vw;max-height:90vh}
+      .avatar-lightbox-content img{max-width:100%;max-height:100%;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+      .avatar-lightbox-close{position:absolute;top:-40px;right:0;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:8px}
+      .avatar-form{grid-column:1 / -1;display:flex;gap:6px}
+      .admin-nav{display:grid;gap:8px}
+      .admin-nav a{padding:8px 10px;border-radius:8px;color:#333;text-decoration:none}
+      .admin-nav a.active,.admin-nav a:hover{background:#f4f6f8}
+      .admin-main{padding:16px}
+      .panel{border:1px solid #eee;border-radius:12px;padding:12px;margin-bottom:16px;background:#fff}
+      .table{border:1px solid #eee;border-radius:8px}
+      .thead,.tbody .row{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr .8fr}
+      .thead{font-weight:600;border-bottom:1px solid #eee;padding:8px;background:#fafafa}
+      .tbody .row{padding:8px;border-bottom:1px solid #f2f2f2}
+      .tbody.empty{padding:12px;color:#777}
+      .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+      .stat{border:1px solid #eee;border-radius:10px;padding:12px;background:#fff}
+      .value{font-size:24px;font-weight:700}
+      @media(max-width:900px){.admin-shell{grid-template-columns:1fr}.admin-sidebar{display:none}}
+    </style>
+    <script src="/js/admin.js"></script>
+</body>
+</html>

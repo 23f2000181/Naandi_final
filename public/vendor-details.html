@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vendor Details - Naandi</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <header class="topnav"><div class="logo">Vendor Details</div></header>
+  <main class="container">
+    <div class="muted">After submission you will see: "Application Submitted, Waiting for Admin’s Approval."</div>
+    <form id="detailsForm" class="form" enctype="multipart/form-data">
+      <input type="hidden" name="tempId" id="tempId" />
+      <label>Shop Name<input name="shopName" required></label>
+      <label>Description<textarea name="description" rows="3"></textarea></label>
+      <label>Address<input name="address"></label>
+      <div class="grid-2">
+        <label>Latitude<input name="lat" id="lat"></label>
+        <label>Longitude<input name="lng" id="lng"></label>
+      </div>
+      <label>Upload Images<input name="images" type="file" multiple></label>
+      <button class="btn" type="submit">Submit</button>
+    </form>
+    <div id="msg" class="muted" style="margin-top:12px"></div>
+  </main>
+  <script>
+    const params = new URLSearchParams(location.search);
+    document.getElementById('tempId').value = params.get('tempId') || '';
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(p => {
+        document.getElementById('lat').value = p.coords.latitude;
+        document.getElementById('lng').value = p.coords.longitude;
+      });
+    }
+    document.getElementById('detailsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const res = await fetch('/api/vendor/details', { method:'POST', body: fd });
+      const data = await res.json();
+      document.getElementById('msg').textContent = data.message || data.error;
+    });
+  </script>
+</body>
+</html>
+
