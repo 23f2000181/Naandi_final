@@ -197,11 +197,67 @@
       
       function apply(){
         const q = document.getElementById('searchInput').value.toLowerCase();
-        const cats = [...document.querySelectorAll('.filter-option input:checked')].map(x=>x.value);
-        let arr = state.list.filter(v => (v.shopName||v.name||'').toLowerCase().includes(q));
-        arr = arr.filter(v => !cats.length || cats.includes(v.category||'photography'));
+        const checkedFilters = [...document.querySelectorAll('.filter-option input:checked')];
+        const categoryFilters = checkedFilters.filter(input => ['photography', 'catering', 'music', 'decoration', 'venue', 'transport'].includes(input.value)).map(x=>x.value);
+        const priceFilters = checkedFilters.filter(input => ['budget', 'mid', 'premium'].includes(input.value)).map(x=>x.value);
+        const locationFilters = checkedFilters.filter(input => ['bangalore', 'mumbai', 'delhi', 'chennai'].includes(input.value)).map(x=>x.value);
+
+        let arr = state.list.filter(v => {
+          // Search filter
+          const searchMatch = (v.shopName||v.name||'').toLowerCase().includes(q) ||
+                             (v.description||'').toLowerCase().includes(q) ||
+                             (v.services||'').toLowerCase().includes(q) ||
+                             (v.address||'').toLowerCase().includes(q);
+
+          if (!searchMatch) return false;
+
+          // Category filter
+          if (categoryFilters.length > 0) {
+            const vendorCategory = (v.category || v.services || '').toLowerCase();
+            const categoryMatch = categoryFilters.some(cat =>
+              vendorCategory.includes(cat.toLowerCase())
+            );
+            if (!categoryMatch) return false;
+          }
+
+          // Price filter
+          if (priceFilters.length > 0) {
+            const vendorPrice = parsePrice(v.price || v.startingPrice || '0');
+            const priceMatch = priceFilters.some(range => {
+              switch(range) {
+                case 'budget': return vendorPrice < 10000;
+                case 'mid': return vendorPrice >= 10000 && vendorPrice <= 50000;
+                case 'premium': return vendorPrice > 50000;
+                default: return false;
+              }
+            });
+            if (!priceMatch) return false;
+          }
+
+          // Location filter
+          if (locationFilters.length > 0) {
+            const vendorLocation = (v.address || v.location || '').toLowerCase();
+            const locationMatch = locationFilters.some(loc =>
+              vendorLocation.includes(loc.toLowerCase())
+            );
+            if (!locationMatch) return false;
+          }
+
+          return true;
+        });
+
         render(arr);
         updateResultsCount(arr.length);
+      }
+
+      function parsePrice(priceStr) {
+        if (typeof priceStr === 'number') return priceStr;
+        if (typeof priceStr === 'string') {
+          // Remove currency symbols and commas, extract numbers
+          const match = priceStr.replace(/[₹,\s]/g, '').match(/(\d+)/);
+          return match ? parseInt(match[1]) : 0;
+        }
+        return 0;
       }
       
       function render(list){
@@ -221,7 +277,7 @@
         
         list.forEach(v=>{
           const vendorCard = document.createElement('div');
-          vendorCard.className = 'vendor-card';
+          vendorCard.className = 'vendor-card grid-view';
           vendorCard.innerHTML = `
             <div class="vendor-image">
               <img src="${v.profilePic || '/uploads/default.png'}" alt="${v.shopName || v.name}" onerror="this.src='/uploads/default.png'">
@@ -320,7 +376,26 @@
         btn.addEventListener('click', () => {
           document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          // TODO: Implement view switching
+          // Implement view switching
+          const view = btn.getAttribute('data-view');
+          const wrap = document.getElementById('vendorsGrid');
+          if (view === 'grid') {
+            wrap.classList.remove('vendors-list');
+            wrap.classList.add('vendors-grid');
+            // Update vendor cards classes
+            wrap.querySelectorAll('.vendor-card').forEach(card => {
+              card.classList.remove('list-view');
+              card.classList.add('grid-view');
+            });
+          } else if (view === 'list') {
+            wrap.classList.remove('vendors-grid');
+            wrap.classList.add('vendors-list');
+            // Update vendor cards classes
+            wrap.querySelectorAll('.vendor-card').forEach(card => {
+              card.classList.remove('grid-view');
+              card.classList.add('list-view');
+            });
+          }
         });
       });
       
